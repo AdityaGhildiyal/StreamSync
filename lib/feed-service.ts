@@ -62,5 +62,6 @@ export const getStreams = async () => {
     });
   }
 
-  return streams;
+  // Filter out orphaned streams whose user was deleted
+  return streams.filter((stream) => stream.user !== null);
 };
