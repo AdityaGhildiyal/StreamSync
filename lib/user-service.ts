@@ -15,16 +15,8 @@ export const getUserByUsername = async (username: string) => {
         select: {
           id: true,
           isLive: true,
-          isChatDelayed: true,
-          isChatEnabled: true,
-          isChatFollowersOnly: true,
           thumbnailUrl: true,
           name: true,
-        },
-      },
-      _count: {
-        select: {
-          followedBy: true,
         },
       },
     },

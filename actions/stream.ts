@@ -22,9 +22,6 @@ export const updateStream = async (values: Partial<Stream>) => {
     const validData = {
       thumbnailUrl: values.thumbnailUrl,
       name: values.name,
-      isChatEnabled: values.isChatEnabled,
-      isChatFollowersOnly: values.isChatFollowersOnly,
-      isChatDelayed: values.isChatDelayed,
     };
 
     const stream = await db.stream.update({
@@ -36,7 +33,6 @@ export const updateStream = async (values: Partial<Stream>) => {
       },
     });
 
-    revalidatePath(`/u/${self.username}/chat`);
     revalidatePath(`/u/${self.username}`);
     revalidatePath(`/${self.username}`);
 

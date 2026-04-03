@@ -5,8 +5,6 @@ import { Pencil } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
 
-import { InfoModal } from "./info-modal";
-
 interface InfoCardProps {
   name: string;
   thumbnailUrl: string | null;
@@ -34,16 +32,12 @@ export const InfoCard = ({
           </div>
           <div>
             <h2 className="text-sm lg:text-lg font-semibold capitalize">
-              Edit your stream info
+              Stream info
             </h2>
             <p className="text-muted-foreground text-xs lg:text-sm">
-              Maximize your visibility
+              Your current stream details
             </p>
           </div>
-          <InfoModal
-            initialName={name}
-            initialThumbnailUrl={thumbnailUrl}
-          />
         </div>
         <Separator />
         <div className="p-4 lg:p-6 space-y-4">

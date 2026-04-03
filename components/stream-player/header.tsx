@@ -7,17 +7,13 @@ import {
 } from "@livekit/components-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { VerifiedMark } from "@/components/verified-mark";
 import { UserAvatar, UserAvatarSkeleton } from "@/components/user-avatar";
-
-import { Actions, ActionsSkeleton } from "./actions";
 
 interface HeaderProps {
   imageUrl: string;
   hostName: string;
   hostIdentity: string;
   viewerIdentity: string;
-  isFollowing: boolean;
   name: string;
 };
 
@@ -26,7 +22,6 @@ export const Header = ({
   hostName,
   hostIdentity,
   viewerIdentity,
-  isFollowing,
   name,
 }: HeaderProps) => {
   const participants = useParticipants();
@@ -34,9 +29,6 @@ export const Header = ({
 
   const isLive = !!participant;
   const participantCount = participants.length - 1;
-
-  const hostAsViewer = `host-${hostIdentity}`;
-  const isHost = viewerIdentity === hostAsViewer;
 
   return (
     <div className="flex flex-col lg:flex-row gap-y-4 lg:gap-y-0 items-start justify-between px-4">
@@ -53,7 +45,6 @@ export const Header = ({
             <h2 className="text-lg font-semibold">
               {hostName}
             </h2>
-            <VerifiedMark />
           </div>
           <p className="text-sm font-semibold">
             {name}
@@ -72,11 +63,6 @@ export const Header = ({
           )}
         </div>
       </div>
-      <Actions
-        isFollowing={isFollowing}
-        hostIdentity={hostIdentity}
-        isHost={isHost}
-      />
     </div>
   );
 };
@@ -91,7 +77,6 @@ export const HeaderSkeleton = () => {
           <Skeleton className="h-4 w-24" />
         </div>
       </div>
-      <ActionsSkeleton />
     </div>
   );
 };

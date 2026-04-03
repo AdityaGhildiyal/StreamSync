@@ -14,33 +14,12 @@ export const getRecommended = async () => {
   let users = [];
 
   if (userId) {
+    // Exclude the logged-in user themselves
     users = await db.user.findMany({
       where: {
-        AND: [
-          {
-            NOT: {
-              id: userId,
-            },
-          },
-          {
-            NOT: {
-              followedBy: {
-                some: {
-                  followerId: userId,
-                },
-              },
-            },
-          },
-          {
-            NOT: {
-              blocking: {
-                some: {
-                  blockedId: userId,
-                },
-              },
-            },
-          },
-        ],
+        NOT: {
+          id: userId,
+        },
       },
       include: {
         stream: {
@@ -59,7 +38,7 @@ export const getRecommended = async () => {
           createdAt: "desc"
         },
       ]
-    })
+    });
   } else {
     users = await db.user.findMany({
       include: {
