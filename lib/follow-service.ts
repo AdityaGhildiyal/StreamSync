@@ -1,20 +1,21 @@
 import { db } from "@/lib/db";
 import { getSelf } from "@/lib/auth-service";
+import { getBlockerUserIds, hasFollowAndBlockModels } from "@/lib/user-query-helpers";
 
 export const getFollowedUsers = async () => {
   try {
     const self = await getSelf();
 
+    if (!hasFollowAndBlockModels()) {
+      return [];
+    }
+
+    const blockerIds = await getBlockerUserIds(self.id);
+
     const followedUsers = db.follow.findMany({
       where: {
         followerId: self.id,
-        following: {
-          blocking: {
-            none: {
-              blockedId: self.id,
-            },
-          },
-        },
+        followingId: { notIn: blockerIds },
       },
       include: {
         following: {

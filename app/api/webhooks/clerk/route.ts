@@ -4,6 +4,7 @@ import { WebhookEvent } from '@clerk/nextjs/server'
 
 import { db } from '@/lib/db'
 import { resetIngresses } from '@/actions/ingress'
+import { syncClerkUserToDb } from '@/lib/sync-clerk-user'
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
@@ -50,40 +51,23 @@ export async function POST(req: Request) {
   }
 
   const eventType = evt.type;
+  const userData = evt.data;
 
-  if (eventType === "user.created") {
-    await db.user.create({
-      data: {
-        externalUserId: payload.data.id,
-        username: payload.data.username,
-        imageUrl: payload.data.image_url,
-        stream: {
-          create: {
-            name: `${payload.data.username}'s stream`,
-          },
-        },
-      },
-    });
-  }
-
-  if (eventType === "user.updated") {
-    await db.user.update({
-      where: {
-        externalUserId: payload.data.id,
-      },
-      data: {
-        username: payload.data.username,
-        imageUrl: payload.data.image_url,
-      },
-    });
+  try {
+    if (eventType === "user.created" || eventType === "user.updated") {
+      await syncClerkUserToDb(userData);
+    }
+  } catch (err) {
+    console.error(`Clerk webhook ${eventType} failed:`, err);
+    return new Response("Webhook handler failed", { status: 500 });
   }
  
-  if (eventType === "user.deleted") {
-    await resetIngresses(payload.data.id);
+  if (eventType === "user.deleted" && userData.id) {
+    await resetIngresses(userData.id);
 
     await db.user.delete({
       where: {
-        externalUserId: payload.data.id,
+        externalUserId: userData.id,
       },
     });
   }

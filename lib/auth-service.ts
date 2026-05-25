@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs";
 
 import { db } from "@/lib/db";
+import { syncClerkUserToDb } from "@/lib/sync-clerk-user";
 
 export const getSelf = async () => {
   const self = await currentUser();
@@ -9,12 +10,12 @@ export const getSelf = async () => {
     throw new Error("Unauthorized");
   }
 
-  const user = await db.user.findUnique({
+  let user = await db.user.findUnique({
     where: { externalUserId: self.id },
   });
 
   if (!user) {
-    throw new Error("Not found");
+    user = await syncClerkUserToDb(self);
   }
 
   return user;
@@ -27,16 +28,16 @@ export const getSelfByUsername = async (username: string) => {
     throw new Error("Unauthorized");
   }
 
-  const user = await db.user.findUnique({
-    where: { username }
+  if (self.username !== username) {
+    throw new Error("Unauthorized");
+  }
+
+  let user = await db.user.findUnique({
+    where: { username },
   });
 
   if (!user) {
-    throw new Error("User not found");
-  }
-
-  if (self.username !== user.username) {
-    throw new Error("Unauthorized");
+    user = await syncClerkUserToDb(self);
   }
 
   return user;

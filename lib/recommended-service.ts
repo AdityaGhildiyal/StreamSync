@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { getSelf } from "@/lib/auth-service";
+import { getExcludedUserIdsForRecommendations } from "@/lib/user-query-helpers";
 
 export const getRecommended = async () => {
   let userId;
@@ -14,33 +15,11 @@ export const getRecommended = async () => {
   let users = [];
 
   if (userId) {
+    const excludedIds = await getExcludedUserIdsForRecommendations(userId);
+
     users = await db.user.findMany({
       where: {
-        AND: [
-          {
-            NOT: {
-              id: userId,
-            },
-          },
-          {
-            NOT: {
-              followedBy: {
-                some: {
-                  followerId: userId,
-                },
-              },
-            },
-          },
-          {
-            NOT: {
-              blocking: {
-                some: {
-                  blockedId: userId,
-                },
-              },
-            },
-          },
-        ],
+        id: { notIn: excludedIds },
       },
       include: {
         stream: {

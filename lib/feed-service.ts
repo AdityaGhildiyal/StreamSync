@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { getSelf } from "@/lib/auth-service"
+import { getBlockerUserIds } from "@/lib/user-query-helpers"
 
 export const getStreams = async () => {
   let userId;
@@ -14,17 +15,11 @@ export const getStreams = async () => {
   let streams = [];
 
   if (userId) {
+    const blockerIds = await getBlockerUserIds(userId);
+
     streams = await db.stream.findMany({
       where: {
-        user: {
-          NOT: {
-            blocking: {
-              some: {
-                blockedId: userId,
-              }
-            }
-          }
-        }
+        userId: { notIn: blockerIds },
       },
       select: {
         id: true,
